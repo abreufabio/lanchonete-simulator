@@ -1,0 +1,77 @@
+.list-container {
+    width: 100%;
+}
+
+.pedidos-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 20px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.pedidos-table thead tr {
+    background: linear-gradient(135deg, var(--bg-primary), #1f1f1f);
+}
+
+.pedidos-table th,
+.pedidos-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pedidos-table tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+.status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-pendente {
+    background: linear-gradient(135deg, #8b6b3a, #7b5b2a);
+    color: white;
+}
+
+.status-preparando {
+    background: linear-gradient(135deg, #3a6b8b, #2a5b7b);
+    color: white;
+}
+
+.status-pronto {
+    background: linear-gradient(135deg, #3a8b5a, #2a7b4a);
+    color: white;
+}
+
+.status-entregue {
+    background: linear-gradient(135deg, #5a3a8b, #4a2a7b);
+    color: white;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.actions .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #999999;
+    font-size: 16px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/editar.css">
+{% endblock %}
+
+{% block content %}
+<div class="edit-container">
+    <div class="edit-card">
+        <h3>Editar Pedido</h3>
+        
+        <div class="pedido-id-badge">
+            <strong>ID do Pedido:</strong>
+            <span>#{{ pedido.id }}</span>
+        </div>
+        
+        <form id="editarForm" class="edit-form">
+            <input type="hidden" id="pedido_id" value="{{ pedido.id }}">
+            
+            <div class="form-row">
+                <label for="cliente">Cliente:</label>
+                <input type="text" id="cliente" name="cliente" value="{{ pedido.cliente }}" required>
+                <div class="form-help">Digite o nome completo do cliente</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="lanche">Lanche:</label>
+                <input type="text" id="lanche" name="lanche" value="{{ pedido.lanche }}" required>
+                <div class="form-help">Digite o nome do lanche</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" id="quantidade" name="quantidade" value="{{ pedido.quantidade }}" min="1" required>
+                <div class="form-help">Quantidade mínima: 1</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="Pendente" {% if pedido.status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="Preparando" {% if pedido.status == 'Preparando' %}selected{% endif %}>Preparando</option>
+                    <option value="Pronto" {% if pedido.status == 'Pronto' %}selected{% endif %}>Pronto</option>
+                    <option value="Entregue" {% if pedido.status == 'Entregue' %}selected{% endif %}>Entregue</option>
+                </select>
+                <div class="form-help">Selecione o status atual do pedido</div>
+            </div>
+            
+            <div class="preview-section">
+                <h4>Preview das Alterações</h4>
+                <div class="preview-content">
+                    <div class="preview-item">
+                        <span class="preview-label">Cliente:</span>
+                        <span class="preview-value" id="previewCliente">{{ pedido.cliente }}</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-label">Lanche:</span>
+                        <span class="preview-value" id="previewLanche">{{ pedido.lanche }}</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-label">Quantidade:</span>
+                        <span class="preview-value" id="previewQuantidade">{{ pedido.quantidade }}</span>
+                    </div>
+                    <div class="preview-item">
+                        <span class="preview-label">Status:</span>
+                        <span class="preview-value" id="previewStatus">{{ pedido.status }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <a href="/pedidos" class="btn btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    
+    <div id="mensagem" class="mensagem"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview das alterações em tempo real
+    const clienteInput = document.getElementById('cliente');
+    const lancheInput = document.getElementById('lanche');
+    const quantidadeInput = document.getElementById('quantidade');
+    const statusSelect = document.getElementById('status');
+    
+    function updatePreview() {
+        document.getElementById('previewCliente').textContent = clienteInput.value || '-';
+        document.getElementById('previewLanche').textContent = lancheInput.value || '-';
+        document.getElementById('previewQuantidade').textContent = quantidadeInput.value || '0';
+        
+        const statusText = statusSelect.options[statusSelect.selectedIndex].text;
+        document.getElementById('previewStatus').textContent = statusText;
+    }
+    
+    clienteInput.addEventListener('input', updatePreview);
+    lancheInput.addEventListener('input', updatePreview);
+    quantidadeInput.addEventListener('input', updatePreview);
+    statusSelect.addEventListener('change', updatePreview);
+});
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/editar.js"></script>
+{% endblock %}

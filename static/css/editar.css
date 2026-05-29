@@ -1,0 +1,152 @@
+.edit-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.edit-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.edit-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    border-left: 4px solid var(--info-color);
+    padding-left: 15px;
+}
+
+.pedido-id-badge {
+    background: var(--bg-tertiary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.pedido-id-badge strong {
+    color: var(--text-primary);
+    font-size: 1.1em;
+}
+
+.pedido-id-badge span {
+    color: var(--info-color);
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-left: 10px;
+}
+
+.edit-form {
+    margin-top: 20px;
+}
+
+.form-row {
+    margin-bottom: 20px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.form-row input,
+.form-row select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    transition: all var(--transition-normal);
+}
+
+.form-row input:focus,
+.form-row select:focus {
+    outline: none;
+    border-color: var(--info-color);
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+}
+
+.form-row input:hover,
+.form-row select:hover {
+    border-color: var(--hover-color);
+}
+
+.form-row input:invalid {
+    border-color: var(--error-color);
+}
+
+.form-help {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.preview-section {
+    margin-top: 25px;
+    padding: 20px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.preview-section h4 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    font-size: 1em;
+}
+
+.preview-content {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.preview-item {
+    margin: 8px 0;
+    padding: 5px;
+}
+
+.preview-label {
+    font-weight: bold;
+    color: var(--text-tertiary);
+    margin-right: 10px;
+}
+
+.preview-value {
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .edit-card {
+        padding: 20px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .preview-section {
+        padding: 15px;
+    }
+}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/alterar_status.css">
+{% endblock %}
+
+{% block content %}
+<div class="status-container">
+    <div class="status-card">
+        <h3>Alterar Status do Pedido</h3>
+        
+        <div class="info-group">
+            <div class="info-label">ID do Pedido:</div>
+            <div class="info-value"><strong>#{{ pedido.id }}</strong></div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">Cliente:</div>
+            <div class="info-value">{{ pedido.cliente }}</div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">Lanche:</div>
+            <div class="info-value">{{ pedido.lanche }}</div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">Quantidade:</div>
+            <div class="info-value">{{ pedido.quantidade }}</div>
+        </div>
+        
+        <div class="info-group">
+            <div class="info-label">Status Atual:</div>
+            <div class="info-value">
+                <span class="status-badge status-badge-{{ pedido.status.lower() }}">
+                    {{ pedido.status }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="status-selector">
+            <form id="statusForm">
+                <input type="hidden" id="pedido_id" value="{{ pedido.id }}">
+                
+                <div class="form-group">
+                    <label for="status">Novo Status:</label>
+                    <select id="status" name="status" class="form-control" required>
+                        <option value="Pendente" {% if pedido.status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                        <option value="Preparando" {% if pedido.status == 'Preparando' %}selected{% endif %}>Preparando</option>
+                        <option value="Pronto" {% if pedido.status == 'Pronto' %}selected{% endif %}>Pronto</option>
+                        <option value="Entregue" {% if pedido.status == 'Entregue' %}selected{% endif %}>Entregue</option>
+                    </select>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">Atualizar Status</button>
+                    <a href="/pedidos" class="btn btn-cancel">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="mensagem" class="mensagem"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/alterar_status.js"></script>
+{% endblock %}

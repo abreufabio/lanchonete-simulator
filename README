@@ -1,0 +1,81 @@
+SISTEMA DE PEDIDOS DE UMA LANCHONETE:
+
+Sistema web completo para gerenciamento de pedidos de uma lanchonete 
+desenvolvido com Python, Flask, MySQL, HTML, CSS e JavaScript.
+
+- Cadastrar pedidos
+- Listar pedidos
+- Editar pedidos (método PUT)
+- Deletar pedidos (método DELETE com confirmação)
+- Alterar status do pedido
+- Interface responsiva com tons de cinza e preto
+- Modais de confirmação
+- Notificações de sucesso/erro
+- Animações e transições suaves
+
+Estruturamento das pastas:
+lanchonete/
+├── app.py                          # Arquivo principal da aplicação
+├── database.py                     # Configuração do banco de dados
+├── database.sql                    # Script do banco de dados
+├── models/
+│   └── pedido.py                   # Classe Pedido (ORM)
+├── static/
+│   ├── css/
+│   │   ├── base.css                # Estilos base
+│   │   ├── components.css          # Componentes reutilizáveis
+│   │   ├── responsive.css          # Estilos responsivos
+│   │   ├── listar.css              # Estilo da página de listagem
+│   │   ├── cadastrar.css           # Estilo da página de cadastro
+│   │   ├── editar.css              # Estilo da página de edição
+│   │   ├── alterar_status.css      # Estilo da página de alterar status
+│   │   └── form.css                # Estilos de formulários
+│   └── js/
+│       ├── main.js                 # JavaScript principal
+│       ├── listar.js               # Funcionalidades da listagem
+│       ├── cadastrar.js            # Funcionalidades do cadastro
+│       ├── editar.js               # Funcionalidades da edição
+│       └── alterar_status.js       # Funcionalidades de alterar status
+└── templates/
+    ├── base.html                   # Template base
+    ├── listar.html                 # Página de listagem
+    ├── cadastrar.html              # Página de cadastro
+    ├── editar.html                 # Página de edição
+    └── alterar_status.html         # Página de alterar status
+
+*Lembrando que as pastas ".venv", e "__pycache__" são criadas
+ após inicialização do projeto.
+
+COMO EXECUTAR O PROJETO:
+
+WINDOWS (XAMMP):
+
+1. Abra o XAMPP e inicie o MySQL
+2. Abra o projeto no VSCode
+3. Crie o ambiente virtual:
+   python -m venv venv
+4. Ative o ambiente virtual:
+   venv\Scripts\activate
+5. Instale as dependências:
+   pip install flask mysql-connector-python
+6. Execute o script database.sql no phpMyAdmin
+7. Configure a senha do MySQL no arquivo database.py
+8. Execute o projeto:
+   python app.py
+9. Acesse: http://localhost:5000
+
+LINUX: 
+
+1. Abra o projeto no VSCode
+2. Crie o ambiente virtual:
+   python3 -m venv venv
+3. Ative o ambiente virtual:
+   source venv/bin/activate
+4. Instale as dependências:
+   pip install flask mysql-connector-python
+5. Execute o script database.sql:
+   mysql -u root -p < database.sql
+6. Configure a senha do MySQL no arquivo database.py
+7. Execute o projeto:
+   python app.py
+8. Acesse: http://localhost:5000

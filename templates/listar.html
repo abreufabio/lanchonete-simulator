@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/listar.css">
+{% endblock %}
+
+{% block content %}
+<div class="list-container">
+    <h2>Lista de Pedidos</h2>
+    
+    {% if pedidos %}
+    <div class="table-responsive">
+        <table class="pedidos-table" id="pedidos-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Lanche</th>
+                    <th>Quantidade</th>
+                    <th>Status</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pedido in pedidos %}
+                <tr id="pedido-{{ pedido.id }}">
+                    <td>{{ pedido.id }}</td>
+                    <td>{{ pedido.cliente }}</td>
+                    <td>{{ pedido.lanche }}</td>
+                    <td>{{ pedido.quantidade }}</td>
+                    <td>
+                        <span class="status status-{{ pedido.status.lower() }}">
+                            {{ pedido.status }}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <a href="/pedidos/editar/{{ pedido.id }}" class="btn btn-edit">Editar</a>
+                        <a href="/pedidos/status/{{ pedido.id }}" class="btn btn-status">Alterar Status</a>
+                        <button onclick="deletarPedido({{ pedido.id }})" class="btn btn-delete">Deletar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="no-data">Nenhum pedido cadastrado.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/listar.js"></script>
+{% endblock %}

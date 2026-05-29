@@ -1,0 +1,150 @@
+.status-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.status-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.status-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    border-left: 4px solid var(--hover-color);
+    padding-left: 15px;
+}
+
+.info-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+
+.info-label {
+    font-weight: bold;
+    color: var(--text-tertiary);
+    width: 120px;
+    margin-right: 10px;
+}
+
+.info-value {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.current-status {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status-selector {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.status-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.status-option {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    text-align: center;
+}
+
+.status-option:hover {
+    transform: translateY(-2px);
+    border-color: var(--hover-color);
+}
+
+.status-option.selected {
+    border-color: var(--success-color);
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.status-option input {
+    margin-right: 8px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 5px 0;
+}
+
+.status-badge-pendente {
+    background: linear-gradient(135deg, #8b6b3a, #7b5b2a);
+    color: white;
+}
+
+.status-badge-preparando {
+    background: linear-gradient(135deg, #3a6b8b, #2a5b7b);
+    color: white;
+}
+
+.status-badge-pronto {
+    background: linear-gradient(135deg, #3a8b5a, #2a7b4a);
+    color: white;
+}
+
+.status-badge-entregue {
+    background: linear-gradient(135deg, #5a3a8b, #4a2a7b);
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .status-card {
+        padding: 20px;
+    }
+    
+    .info-group {
+        flex-direction: column;
+    }
+    
+    .info-label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .status-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        text-align: center;
+    }
+}

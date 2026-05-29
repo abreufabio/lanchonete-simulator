@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/cadastrar.css">
+{% endblock %}
+
+{% block content %}
+<div class="cadastro-container">
+    <div class="cadastro-card">
+        <h3>Cadastrar Novo Pedido</h3>
+        
+        <form id="cadastroForm" class="cadastro-form">
+            <div class="form-row">
+                <label for="cliente">Cliente:</label>
+                <input type="text" id="cliente" name="cliente" placeholder="Digite o nome do cliente" required>
+                <div class="form-help">Digite o nome completo do cliente</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="lanche">Lanche:</label>
+                <input type="text" id="lanche" name="lanche" placeholder="Digite o nome do lanche" required>
+                <div class="form-help">Ex: X-Burger, X-Salada, Hot Dog, etc.</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" id="quantidade" name="quantidade" min="1" value="1" required>
+                <div class="form-help">Quantidade mínima: 1</div>
+            </div>
+            
+            <div class="form-row">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="Pendente">Pendente</option>
+                    <option value="Preparando">Preparando</option>
+                    <option value="Pronto">Pronto</option>
+                    <option value="Entregue">Entregue</option>
+                </select>
+                <div class="form-help">Selecione o status inicial do pedido</div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Cadastrar Pedido</button>
+                <a href="/pedidos" class="btn btn-cancel">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    
+    <div id="mensagem" class="mensagem"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/cadastrar.js"></script>
+{% endblock %}
