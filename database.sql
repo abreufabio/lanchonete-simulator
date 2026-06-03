@@ -10,6 +10,14 @@ CREATE TABLE IF NOT EXISTS pedidos (
     status VARCHAR(50) NOT NULL DEFAULT 'Pendente'
 );
 
+CREATE TABLE usuarios(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL
+);
+
+
 INSERT INTO pedidos (cliente, lanche, quantidade, status) VALUES
 ('João Silva', 'X-Burger', 2, 'Pendente'),
 ('Maria Santos', 'X-Salada', 1, 'Preparando'),

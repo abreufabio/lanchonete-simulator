@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Login - Sistema Lanchonete</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <div class="logo-icon">🍔</div>
+                <h1>Lanchonete Simulator</h1>
+                <p>Faça login para acessar o sistema de pedidos</p>
+            </div>
+            
+            <div class="card-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <div class="input-group">
+                            <span class="input-icon">📧</span>
+                            <input type="email" id="email" name="email" class="form-control" 
+                                   placeholder="seu@email.com" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <div class="input-group">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="password" name="password" class="form-control" 
+                                   placeholder="Digite sua senha" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <span>Entrar no Sistema</span>
+                        <span>→</span>
+                    </button>
+                </form>
+
+                <button type="button" class="btn-register" id="registerBtn">
+                    📝 Criar nova conta
+                </button>
+
+                <div class="login-help">
+                    <a href="#" id="forgotLink">Esqueci minha senha</a>
+                </div>
+            </div>
+        </div>
+        <div class="login-footer">
+            <span>Sistema de Gerenciamento de Pedidos © 2026</span>
+        </div>
+    </div>
+
+    <!-- Modal de Registro CORRIGIDO -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Nova Conta</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regNome">Nome Completo</label>
+                        <div class="input-group">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="regNome" name="nome" class="form-control" 
+                                   placeholder="Digite seu nome completo" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">E-mail</label>
+                        <div class="input-group">
+                            <span class="input-icon">📧</span>
+                            <input type="email" id="regEmail" name="email" class="form-control" 
+                                   placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regSenha">Senha</label>
+                        <div class="input-group">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="regSenha" name="senha" class="form-control" 
+                                   placeholder="Mínimo 6 caracteres" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regConfirmSenha">Confirmar Senha</label>
+                        <div class="input-group">
+                            <span class="input-icon">✓</span>
+                            <input type="password" id="regConfirmSenha" name="confirm_senha" class="form-control" 
+                                   placeholder="Digite a senha novamente" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login" style="margin-top: 20px;">
+                        Cadastrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>
