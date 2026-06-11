@@ -72,21 +72,7 @@ class Database:
                 self.close()
         return None
 
-    # ==================== MÉTODOS PARA TABELA DE PEDIDOS ====================
-    
-    def criar_tabela_pedidos(self):
-        """Cria a tabela de pedidos se não existir"""
-        query = """
-            CREATE TABLE IF NOT EXISTS pedidos (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                cliente VARCHAR(100) NOT NULL,
-                lanche VARCHAR(100) NOT NULL,
-                quantidade INT NOT NULL,
-                status VARCHAR(50) DEFAULT 'Pendente',
-                data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """
-        return self.execute_query(query)
+    # ==================== CRUD PARA TABELA DE PEDIDOS ====================
     
     def listar_pedidos(self):
         """Lista todos os pedidos"""
@@ -125,47 +111,8 @@ class Database:
         query = "UPDATE pedidos SET status = %s WHERE id = %s"
         return self.execute_query(query, (status, pedido_id))
     
-    # ==================== MÉTODOS PARA TABELA DE USUÁRIOS (LOGIN) ====================
+    # ==================== CRUD OS PARA TABELA DE USUÁRIOS (LOGIN) ====================
     
-    def criar_tabela_usuarios(self):
-        """Cria a tabela de usuários se não existir"""
-        query = """
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nome VARCHAR(100) NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL,
-                senha VARCHAR(255) NOT NULL,
-                data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """
-        return self.execute_query(query)
-    
-    @staticmethod
-    def hash_senha(senha):
-        """Gera hash da senha usando SHA-256"""
-        return hashlib.sha256(senha.encode()).hexdigest()
-    
-    def criar_usuario_admin(self):
-        """Cria um usuário admin padrão se não existir nenhum usuário"""
-        # Verificar se já existe algum usuário
-        query_count = "SELECT COUNT(*) as total FROM usuarios"
-        result = self.fetch_one(query_count)
-        
-        if result and result['total'] == 0:
-            # Criar usuário admin padrão
-            senha_hash = self.hash_senha('admin123')
-            query_insert = """
-                INSERT INTO usuarios (nome, email, senha)
-                VALUES (%s, %s, %s)
-            """
-            self.execute_query(query_insert, ('Administrador', 'admin@lanchonete.com', senha_hash))
-            print("=" * 50)
-            print("✅ USUÁRIO ADMIN CRIADO COM SUCESSO!")
-            print(f"   Email: admin@lanchonete.com")
-            print(f"   Senha: admin123")
-            print("=" * 50)
-            return True
-        return False
     
     def autenticar_usuario(self, email, senha):
         """Autentica um usuário e retorna seus dados se bem-sucedido"""
@@ -186,25 +133,49 @@ class Database:
         return None
     
     def cadastrar_usuario(self, nome, email, senha):
-        """Cadastra um novo usuário no sistema"""
-        # Verificar se email já existe
-        query_check = "SELECT id FROM usuarios WHERE email = %s"
-        existe = self.fetch_one(query_check, (email,))
+        #Cadastro de um novo usuario, e validações
+        #Validação de campos
+        if not nome or not nome.strip():
+            return False, "Nome não pode estar em branco"
+        if not email or not email.strip():
+            return False, "Email não pode estar em branco"
+        if not senha:
+            return False, "Senha não pode estar em branco"
         
+        #Verificação se o email já existe
+        query_check = "Selecte id from usuarios where email = %s"
+        existe = self.fetch_one(query_check, (email, ))
         if existe:
             return False, "Email já cadastrado"
         
-        # Cadastrar novo usuário
+        #Verifica se a senha é forte usando o metedo criado de vreficação
+        senha_valida, msg = self.validar_senha_forte(senha)
+        if not senha_valida:
+            return False, msg
+        
+        #Cadastro
         senha_hash = self.hash_senha(senha)
         query_insert = """
-            INSERT INTO usuarios (nome, email, senha)
-            VALUES (%s, %s, %s)
+            insert into usuarios (nome, email, senha. ultima_alteracao_senha)
+            values (%s, %s, %s, %s)
         """
-        resultado = self.execute_query(query_insert, (nome, email, senha_hash))
-        
+        resultado = self.execute_query(query_insert, (nome.strip(), email.strip(), senha_hash))
         if resultado:
-            return True, "Usuário cadastrado com sucesso"
-        return False, "Erro ao cadastrar usuário"
+            return True, "Usuario cadastrado com sucesso"
+        return False, "Erro ao cadastrar usuario"
+    
+    #Atualização da senha
+    def atualizar_senha(self, usuario_id, nova_senha):
+        senha_valida, msg = self.validar_senha_forte(nova_senha)
+        if not senha_valida:
+            return False, msg
+        nova_senha_hash = self.hash_senha(nova_senha)
+        query = "update usuarios set senha = %s, ultima_alteracao_senha = now() where is = %s"
+        resultado = self.execute_query(query, (nova_senha_hash, usuario_id))
+
+        if resultado:
+            return True, "Senha alterada com sucesso!"
+        return False, "Erro ao alterar senha"
     
     def buscar_usuario_por_id(self, usuario_id):
         """Busca um usuário pelo ID"""
@@ -216,36 +187,60 @@ class Database:
         query = "SELECT id, nome, email FROM usuarios WHERE email = %s"
         return self.fetch_one(query, (email,))
     
-    def atualizar_senha(self, usuario_id, nova_senha):
-        """Atualiza a senha de um usuário"""
-        nova_senha_hash = self.hash_senha(nova_senha)
-        query = "UPDATE usuarios SET senha = %s WHERE id = %s"
-        return self.execute_query(query, (nova_senha_hash, usuario_id))
-    
-    def listar_todos_usuarios(self):
-        """Lista todos os usuários (apenas para administradores)"""
-        query = "SELECT id, nome, email, data_cadastro FROM usuarios ORDER BY data_cadastro DESC"
-        return self.fetch_all(query)
-    
-    def deletar_usuario(self, usuario_id):
-        """Deleta um usuário do sistema"""
-        query = "DELETE FROM usuarios WHERE id = %s"
-        return self.execute_query(query, (usuario_id,))
 
+# ==================== FUNÇÕES DO TOKEN  ===========================
+
+def salvar_token(self, usuario_id, token_hash, horas_validade=1):
+    expiracao = datetime.now() + timedelta(hours=horas_validade)
+    query = """
+        insert into tokens_recupercao (usuario_id, token_hash, expiracao)
+        values(%s, %s, %s)
+    """
+    return self.execute_query(query, (usuario_id, token_hash, expiracao))
+
+def buscar_token(self, token_hash):
+    query = """
+        select * from token_recuperacao
+        where token_hash = %s and usado = false and expiracao > now()
+    """
+    return self.fetch_one(query, (token_hash))
+
+def marcar_token_usado(self, token_hash):
+    query = "update token_recuperacao set usado = true where token_hash = %s"
+
+def limpar_tokens_expirados(self):
+    query = "delete from token_recupercao where expiracao < now() or usado = true"
+
+# ==================== FUNÇÕES DE SENHAS FORTE ======================
+
+            # ===== Criteios são:
+            # ===== Minimo 8 caracteres
+            # ===== Pelo menos uma letra maiuscula
+            # ===== Pelo menos uma letra minuscula
+            # ===== Pelo menos um numero 
+            # ===== Pelo menos um caractere especial (!@#$%¨&*)
+
+@staticmethod
+def hash_senha(senha):
+    return hashlib.sha256(senha.encode()).hexdigest()
+
+def validar_senha_forte():
+    if len(senha) < 8:
+        return False, "A senha deve ter no minimo 8 caracteres"
+    if not re.search(r'[A-Z]', senha):
+        return False, "A senha deve possuir pelo menos uma letra maiuscula"
+    if not re.search(r'[a-z]', senha):
+        return False, "A senha deve possuir pelo menos uma letra minucula"
+    if not re.search(r'[0-9]', senha):
+        return False, "A senha deve possuir pelo menos um número"
+    if not re.search(r'[!@#$%¨&*():><,.;|{}-=+_§ºª~~^]', senha):
+        return False, "A senha deve possuir pelo menos um caractere especial (!@#$%¨&*():> etc)"
+    
 # ==================== FUNÇÕES DE INICIALIZAÇÃO ====================
 
 def init_database():
     """Inicializa o banco de dados e cria as tabelas necessárias"""
     db = Database()
-    
-    # Criar tabela de pedidos
-    db.criar_tabela_pedidos()
-    
-    # Criar tabela de usuários
-    db.criar_tabela_usuarios()
-    
-    # Criar usuário admin padrão
-    db.criar_usuario_admin()
     
     print("✅ Banco de dados inicializado com sucesso!")
 
