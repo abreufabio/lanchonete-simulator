@@ -201,3 +201,109 @@ def alterar_status_pedido(pedido_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+# =========== ROTAS PARA ALTERAR A SENHA DO USUARIO ====================
+@app.route('/alterar-senha', methods=['GET'])
+@login_required
+def pagina_alterar_senha():
+    return render_template('alterar_senha.html', usuario=session.get('user_nome'))
+
+@app.route('/api/alterar-senha', methods['POST'])
+@login_required
+def api_alterar_senha():
+    try:
+        data = request.get_json()
+        senha_atual = data.get('senha_atual')
+        nova_senha = data.get(nova_senha)
+
+        if not senha_atual or not nova_senha:
+            return jsonify({'success': False, 'message': 'Todos os campos são obrigatórisos'}), 400
+
+        # =========== Verifcação de senha atual
+        usuario = Usuario.autenticar(session['user_email'], senha_atual)
+        if not usuario:
+            return jsonify({'success': False, 'menssage': 'Senha atual incorreta'}), 400
+        
+        # ========== Validação da senha forte
+        from database import db_instance
+        valida, msg = db_instance.validar_senha_forte(nova_senha)
+        if not valida:
+            return jsonify({'success': False, 'message': msg}), 400
+        
+        # ========== Atualizar senha
+        sucesso, mensagem = db_instance.atualizar_senha(session['user_id'], nova_senha)
+        if sucesso:
+            return jsonify({'success': True, 'menssage': mensagem})
+        return jsonify({'success': False, 'menssage': mensagem}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'menssage': str(e)}), 500
+
+# ====================== ROTAS DE RECUPEÇÃO SENHA ====================
+@app.route('/recuperar-senha', methods=['GET'])
+def pagina_recuperar_senha():
+    return render_template('recuperar_senha.html')
+
+@app.route('/api/recuperar-senha', methods=['POST'])
+def api_recuperar_senha():
+    try:
+        data + request.get_json()
+        email = data.get('email')
+
+        if not email or not email.strip():
+            return jsonify({'success': False, 'message': 'Email é obrigatorio'}), 400
+        from database import db_instance
+        usuario = db_instance.buscar_usuario_por_email(email)
+
+        # ======= Por segurança, vai retornar sempre sucesso
+        if not usuario:
+            return jsonify({'success': True, 'message': 'Se houver cadastro em nosso sistema receberá um email com as instruções'})
+        
+        # ======= Criação de email de recuperação. 
+        from models.token_recuperacao import TokenRecuperacao
+        token = TokenRecuperacao.criar_token(Usuario['id'])
+
+        if token:
+            from utils.email_utils import email_Utils
+            email_utils.enviar_email_recuperacao(email, token, usuario['nome'])
+            return jsonify({'succsess': True, 'message': 'Email de recuperação enviado para seu email'})
+        
+        return jsonify({'success': False, 'message': 'Erro ao gerar token'})
+    except Exception as e:
+        print(f"Erro: {e}")
+        return jsonify({'success': False, 'messagem': 'Erro interno' }), 500
+
+@app.route('/redefinir-senha', methods=['GET'])
+def pagina_redefinir_senha():
+    token = request.args.get('token')
+    return render_template('redefinir_senha.html', token=token)
+
+@app.route('/api/redefinir-senha', methods=['POST'])
+def api_redefinir_senha():
+    try: 
+        data = request.get_json()
+        token = data.get('token')
+        nova_senha = data.get('nova_senha')
+
+        if not token or not nova_senha:
+            return  jsonify({'success': False, 'mesage': 'Token e nova senha são obrigatórios'}), 400
+        from models.token_recuperacao import TokenRecuperacao
+        from database import db_instance
+
+        # ========= Validação de Token
+        token_data = TokenRecuperacao.validar_token(token)
+        if not token_data:
+            return({'success': False 'message': 'Token invalido ou expirado'}), 400
+        
+        # ========= Validação de senha forte
+        valida, msg = db_instance.validar_senha_forte(nova_senha)
+        if not valida:
+            return jsonify({'success': False, 'message': msg}), 400
+        
+        # ========= Atualizar senha
+        successo, mensagem = db_instance.atualizar_senha(token['usuario_id'], nova_senha)
+        if successo: 
+            TokenRecuperacao.usar_token(token)
+            return jsonify({'success': True, 'message': 'Senha redefinida com sucesso!'})
+        return jsonify({'success': False, 'message': mensagem}), 400
+    except Exception as e:
+        return jsonify({'success:' False, 'message': str(e)}), 500

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 50px auto; background: #1e1e1e; border-radius: 20px; padding: 30px;">
+    <h2 style="color: #fff; text-align: center; margin-bottom: 30px;">🔐 Alterar Senha</h2>
+    
+    <form id="alterarSenhaForm">
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="senha_atual" style="color: #ccc;">Senha Atual</label>
+            <input type="password" id="senha_atual" class="form-control" 
+                   style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 8px; color: #fff;"
+                   required>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="nova_senha" style="color: #ccc;">Nova Senha</label>
+            <input type="password" id="nova_senha" class="form-control" 
+                   style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 8px; color: #fff;"
+                   required>
+            <small style="color: #888; display: block; margin-top: 5px;">
+                Requisitos: mínimo 8 caracteres, letra maiúscula, minúscula, número e caractere especial
+            </small>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="confirmar_senha" style="color: #ccc;">Confirmar Nova Senha</label>
+            <input type="password" id="confirmar_senha" class="form-control" 
+                   style="width: 100%; padding: 12px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 8px; color: #fff;"
+                   required>
+        </div>
+        
+        <button type="submit" class="btn-login" style="width: 100%; background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer;">
+            Alterar Senha
+        </button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/pedidos" style="color: #aaa;">← Voltar</a>
+    </div>
+</div>
+
+<div id="notification" style="position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; display: none; z-index: 1000;"></div>
+
+<script>
+document.getElementById('alterarSenhaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const senhaAtual = document.getElementById('senha_atual').value;
+    const novaSenha = document.getElementById('nova_senha').value;
+    const confirmarSenha = document.getElementById('confirmar_senha').value;
+    
+    if (!senhaAtual || !novaSenha || !confirmarSenha) {
+        showNotification('Todos os campos são obrigatórios', 'error');
+        return;
+    }
+    
+    if (novaSenha !== confirmarSenha) {
+        showNotification('As senhas não conferem', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/alterar-senha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => { window.location.href = '/pedidos'; }, 2000);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    } catch (error) {
+        showNotification('Erro ao alterar senha', 'error');
+    }
+});
+
+function showNotification(message, type) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    notification.style.background = type === 'success' ? '#4CAF50' : '#f44336';
+    notification.style.color = 'white';
+    setTimeout(() => { notification.style.display = 'none'; }, 3000);
+}
+</script>
+{% endblock %}

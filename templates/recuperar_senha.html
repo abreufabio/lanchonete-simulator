@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Lanchonete</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="card-header">
+                <div class="logo-icon">🔐</div>
+                <h1>Recuperar Senha</h1>
+                <p>Enviaremos um link para redefinir sua senha</p>
+            </div>
+            
+            <div class="card-body">
+                <form id="recuperarForm">
+                    <div class="form-group">
+                        <label for="email">E-mail cadastrado</label>
+                        <div class="input-group">
+                            <span class="input-icon">📧</span>
+                            <input type="email" id="email" name="email" class="form-control" 
+                                   placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-login" id="submitBtn">
+                        Enviar Link de Recuperação
+                    </button>
+                </form>
+                
+                <div class="login-help">
+                    <a href="/login">← Voltar para o login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+    
+    <script>
+    document.getElementById('recuperarForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const submitBtn = document.getElementById('submitBtn');
+        
+        if (!email) {
+            showNotification('Por favor, informe seu email', 'error');
+            return;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
+        
+        try {
+            const response = await fetch('/api/recuperar-senha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                showNotification(data.message, 'success');
+                setTimeout(() => { window.location.href = '/login'; }, 3000);
+            } else {
+                showNotification(data.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Enviar Link de Recuperação';
+            }
+        } catch (error) {
+            showNotification('Erro ao processar solicitação', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Enviar Link de Recuperação';
+        }
+    });
+    
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+        setTimeout(() => notification.classList.remove('show'), 4000);
+    }
+    </script>
+</body>
+</html>
