@@ -1,6 +1,8 @@
 import mysql.connector
 from mysql.connector import Error
 import hashlib
+import re
+from datetime  import datetime, timedelta
 
 class Database:
     def __init__(self):
@@ -143,7 +145,7 @@ class Database:
             return False, "Senha não pode estar em branco"
         
         #Verificação se o email já existe
-        query_check = "Selecte id from usuarios where email = %s"
+        query_check = "Select id from usuarios where email = %s"
         existe = self.fetch_one(query_check, (email, ))
         if existe:
             return False, "Email já cadastrado"
@@ -156,7 +158,7 @@ class Database:
         # ========== Cadastro
         senha_hash = self.hash_senha(senha)
         query_insert = """
-            insert into usuarios (nome, email, senha. ultima_alteracao_senha)
+            insert into usuarios (nome, email, senha, ultima_alteracao_senha)
             values (%s, %s, %s, %s)
         """
         resultado = self.execute_query(query_insert, (nome.strip(), email.strip(), senha_hash))
@@ -170,7 +172,7 @@ class Database:
         if not senha_valida:
             return False, msg
         nova_senha_hash = self.hash_senha(nova_senha)
-        query = "update usuarios set senha = %s, ultima_alteracao_senha = now() where is = %s"
+        query = "update usuarios set senha = %s, ultima_alteracao_senha = now() where id = %s"
         resultado = self.execute_query(query, (nova_senha_hash, usuario_id))
 
         if resultado:
@@ -187,62 +189,66 @@ class Database:
         query = "SELECT id, nome, email FROM usuarios WHERE email = %s"
         return self.fetch_one(query, (email,))
     
+    # ==================== FUNÇÕES DO TOKEN  ===========================
 
-# ==================== FUNÇÕES DO TOKEN  ===========================
+    def salvar_token(self, usuario_id, token_hash, horas_validade=1):
+        expiracao = datetime.now() + timedelta(hours=horas_validade)
+        query = """
+            insert into tokens_recupercao (usuario_id, token_hash, expiracao)
+            values(%s, %s, %s)
+        """
+        return self.execute_query(query, (usuario_id, token_hash, expiracao))
 
-def salvar_token(self, usuario_id, token_hash, horas_validade=1):
-    expiracao = datetime.now() + timedelta(hours=horas_validade)
-    query = """
-        insert into tokens_recupercao (usuario_id, token_hash, expiracao)
-        values(%s, %s, %s)
-    """
-    return self.execute_query(query, (usuario_id, token_hash, expiracao))
+    def buscar_token(self, token_hash):
+        query = """
+            select * from token_recuperacao
+            where token_hash = %s and usado = false and expiracao > now()
+        """
+        return self.fetch_one(query, (token_hash))
 
-def buscar_token(self, token_hash):
-    query = """
-        select * from token_recuperacao
-        where token_hash = %s and usado = false and expiracao > now()
-    """
-    return self.fetch_one(query, (token_hash))
+    def marcar_token_usado(self, token_hash):
+        query = "update token_recuperacao set usado = true where token_hash = %s"
 
-def marcar_token_usado(self, token_hash):
-    query = "update token_recuperacao set usado = true where token_hash = %s"
+    def limpar_tokens_expirados(self):
+        query = "delete from token_recupercao where expiracao < now() or usado = true"
 
-def limpar_tokens_expirados(self):
-    query = "delete from token_recupercao where expiracao < now() or usado = true"
+    # ==================== FUNÇÕES DE SENHAS FORTE ======================
 
-# ==================== FUNÇÕES DE SENHAS FORTE ======================
+                # ===== Criteios são:
+                # ===== Minimo 8 caracteres
+                # ===== Pelo menos uma letra maiuscula
+                # ===== Pelo menos uma letra minuscula
+                # ===== Pelo menos um numero 
+                # ===== Pelo menos um caractere especial (!@#$%¨&*)
 
-            # ===== Criteios são:
-            # ===== Minimo 8 caracteres
-            # ===== Pelo menos uma letra maiuscula
-            # ===== Pelo menos uma letra minuscula
-            # ===== Pelo menos um numero 
-            # ===== Pelo menos um caractere especial (!@#$%¨&*)
+    @staticmethod
+    def hash_senha(senha):
+        return hashlib.sha256(senha.encode()).hexdigest()
 
-@staticmethod
-def hash_senha(senha):
-    return hashlib.sha256(senha.encode()).hexdigest()
+    def validar_senha_forte():
+        if len(senha) < 8:
+            return False, "A senha deve ter no minimo 8 caracteres"
+        if not re.search(r'[A-Z]', senha):
+            return False, "A senha deve possuir pelo menos uma letra maiuscula"
+        if not re.search(r'[a-z]', senha):
+            return False, "A senha deve possuir pelo menos uma letra minucula"
+        if not re.search(r'[0-9]', senha):
+            return False, "A senha deve possuir pelo menos um número"
+        if not re.search(r'[!@#$%¨&*():><,.;|{}-=+_§ºª~~^]', senha):
+            return False, "A senha deve possuir pelo menos um caractere especial (!@#$%¨&*():> etc)"
+        return True, "Senha forte"
+        
+    # ==================== FUNÇÕES DE INICIALIZAÇÃO ====================
 
-def validar_senha_forte():
-    if len(senha) < 8:
-        return False, "A senha deve ter no minimo 8 caracteres"
-    if not re.search(r'[A-Z]', senha):
-        return False, "A senha deve possuir pelo menos uma letra maiuscula"
-    if not re.search(r'[a-z]', senha):
-        return False, "A senha deve possuir pelo menos uma letra minucula"
-    if not re.search(r'[0-9]', senha):
-        return False, "A senha deve possuir pelo menos um número"
-    if not re.search(r'[!@#$%¨&*():><,.;|{}-=+_§ºª~~^]', senha):
-        return False, "A senha deve possuir pelo menos um caractere especial (!@#$%¨&*():> etc)"
+    def init_database():
+        """Inicializa o banco de dados e cria as tabelas necessárias"""
+        db = Database()
+        
+        print("✅ Banco de dados inicializado com sucesso!")
     
-# ==================== FUNÇÕES DE INICIALIZAÇÃO ====================
-
+    # Criar uma instância global do Database para ser usada em toda a aplicação
 def init_database():
-    """Inicializa o banco de dados e cria as tabelas necessárias"""
+    """Inicializa o banco de dados"""
     db = Database()
-    
     print("✅ Banco de dados inicializado com sucesso!")
-
-# Criar uma instância global do Database para ser usada em toda a aplicação
 db_instance = Database()
