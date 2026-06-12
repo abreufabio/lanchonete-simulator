@@ -153,7 +153,7 @@ class Database:
         if not senha_valida:
             return False, msg
         
-        #Cadastro
+        # ========== Cadastro
         senha_hash = self.hash_senha(senha)
         query_insert = """
             insert into usuarios (nome, email, senha. ultima_alteracao_senha)
