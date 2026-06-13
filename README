@@ -68,6 +68,7 @@ lanchonete/
     ├── listar.html                 # Página de listagem
     ├── cadastrar.html              # Página de cadastro
     ├── editar.html                 # Página de edição
+    ├── mensagem.html               # página para mostrar mensagem caso token expirado
     ├── alterar_status.html         # Página de alterar status
     ├── recuperar_senha.html        # Página de solicitar recuperação
     ├── redefinir_senha.html        # Página de redefinir senha (NOVO)

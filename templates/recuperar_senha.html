@@ -48,7 +48,7 @@
         const submitBtn = document.getElementById('submitBtn');
         
         if (!email) {
-            showNotification('Por favor, informe seu email', 'error');
+            mostrarNotificacao('Por favor, informe seu email', 'error');
             return;
         }
         
@@ -65,21 +65,21 @@
             const data = await response.json();
             
             if (response.ok && data.success) {
-                showNotification(data.message, 'success');
+                mostrarNotificacao(data.message, 'success');
                 setTimeout(() => { window.location.href = '/login'; }, 3000);
             } else {
-                showNotification(data.message, 'error');
+                mostrarNotificacao(data.message || 'Erro ao processar', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Enviar Link de Recuperação';
             }
         } catch (error) {
-            showNotification('Erro ao processar solicitação', 'error');
+            mostrarNotificacao('Erro de conexão', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Enviar Link de Recuperação';
         }
     });
     
-    function showNotification(message, type) {
+    function mostrarNotificacao(message, type) {
         const notification = document.getElementById('notification');
         notification.textContent = message;
         notification.className = `notification ${type}`;

@@ -23,7 +23,7 @@
                         <label for="nova_senha">Nova Senha</label>
                         <div class="input-group">
                             <span class="input-icon">🔒</span>
-                            <input type="password" id="nova_senha" name="nova_senha" class="form-control" 
+                            <input type="password" id="nova_senha" class="form-control" 
                                    placeholder="Nova senha" required>
                         </div>
                         <small style="color: #888; display: block; margin-top: 5px;">
@@ -63,18 +63,18 @@
         const confirmarSenha = document.getElementById('confirmar_senha').value;
         
         if (!novaSenha || !confirmarSenha) {
-            showNotification('Preencha todos os campos', 'error');
+            mostrarNotificacao('Preencha todos os campos', 'error');
             return;
         }
         
         if (novaSenha !== confirmarSenha) {
-            showNotification('As senhas não conferem', 'error');
+            mostrarNotificacao('As senhas não conferem', 'error');
             return;
         }
         
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Processando...';
+        submitBtn.innerHTML = '<span class="spinner"></span> Redefinindo...';
         
         try {
             const response = await fetch('/api/redefinir-senha', {
@@ -86,21 +86,21 @@
             const data = await response.json();
             
             if (response.ok && data.success) {
-                showNotification(data.message, 'success');
+                mostrarNotificacao(data.message, 'success');
                 setTimeout(() => { window.location.href = '/login'; }, 3000);
             } else {
-                showNotification(data.message, 'error');
+                mostrarNotificacao(data.message || 'Erro ao redefinir', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Redefinir Senha';
             }
         } catch (error) {
-            showNotification('Erro ao redefinir senha', 'error');
+            mostrarNotificacao('Erro de conexão', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Redefinir Senha';
         }
     });
     
-    function showNotification(message, type) {
+    function mostrarNotificacao(message, type) {
         const notification = document.getElementById('notification');
         notification.textContent = message;
         notification.className = `notification ${type}`;
