@@ -73,6 +73,31 @@ class Database:
                 cursor.close()
                 self.close()
         return None
+    
+    # ==================== Cria um usuario ADM padrão ====================
+    def criar_usuario_admin(self):
+        """Cria um usuário administrador padrão se não existir nenhum usuário"""
+        # Verificar se já existe algum usuário
+        query_count = "SELECT COUNT(*) as total FROM usuarios"
+        result = self.fetch_one(query_count)
+        
+        if result and result['total'] == 0:
+            # Criar usuário admin padrão
+            senha_hash = self.hash_senha('Admin@123')
+            query_insert = """
+                INSERT INTO usuarios (nome, email, senha, ultima_alteracao_senha)
+                VALUES (%s, %s, %s, NOW())
+            """
+            resultado = self.execute_query(query_insert, ('Administrador', 'admin@lanchonete.com', senha_hash))
+            
+            if resultado:
+                print("=" * 50)
+                print("USUÁRIO ADMIN CRIADO COM SUCESSO!")
+                print(f"Email: admin@lanchonete.com")
+                print(f"Senha: Admin@123")
+                print("=" * 50)
+                return True
+        return False
 
     # ==================== CRUD PARA TABELA DE PEDIDOS ====================
     
@@ -158,8 +183,8 @@ class Database:
         # ========== Cadastro
         senha_hash = self.hash_senha(senha)
         query_insert = """
-            insert into usuarios (nome, email, senha, ultima_alteracao_senha)
-            values (%s, %s, %s, %s)
+            insert into usuarios (nome, email, senha)
+            values (%s, %s, %s)
         """
         resultado = self.execute_query(query_insert, (nome.strip(), email.strip(), senha_hash))
         if resultado:
@@ -224,31 +249,30 @@ class Database:
     @staticmethod
     def hash_senha(senha):
         return hashlib.sha256(senha.encode()).hexdigest()
-
-    def validar_senha_forte():
+    def validar_senha_forte(self, senha):
+        """Valida se a senha atende aos critérios de segurança"""
         if len(senha) < 8:
-            return False, "A senha deve ter no minimo 8 caracteres"
+            return False, "A senha deve ter no mínimo 8 caracteres"
         if not re.search(r'[A-Z]', senha):
-            return False, "A senha deve possuir pelo menos uma letra maiuscula"
+            return False, "A senha deve possuir pelo menos uma letra maiúscula"
         if not re.search(r'[a-z]', senha):
-            return False, "A senha deve possuir pelo menos uma letra minucula"
+            return False, "A senha deve possuir pelo menos uma letra minúscula"
         if not re.search(r'[0-9]', senha):
             return False, "A senha deve possuir pelo menos um número"
-        if not re.search(r'[!@#$%¨&*():><,.;|{}-=+_§ºª~~^]', senha):
-            return False, "A senha deve possuir pelo menos um caractere especial (!@#$%¨&*():> etc)"
+        
+        # CORRIGIDO: Verificação de caractere especial sem regex problemática
+        especiais = '!@#$%^&*(),.?":{}|<>'
+        if not any(c in especiais for c in senha):
+            return False, "A senha deve conter pelo menos um caractere especial (!@#$%^&* etc)"
         return True, "Senha forte"
         
     # ==================== FUNÇÕES DE INICIALIZAÇÃO ====================
-
-    def init_database():
-        """Inicializa o banco de dados e cria as tabelas necessárias"""
-        db = Database()
-        
-        print("✅ Banco de dados inicializado com sucesso!")
     
     # Criar uma instância global do Database para ser usada em toda a aplicação
 def init_database():
-    """Inicializa o banco de dados"""
+    # ========== Inicialização do banco de dados
     db = Database()
     print("✅ Banco de dados inicializado com sucesso!")
+    # ========== Inicialização do usuario admin caso não exista
+    db.criar_usuario_admin()
 db_instance = Database()

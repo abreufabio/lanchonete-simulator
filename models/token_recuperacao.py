@@ -11,7 +11,7 @@ class TokenRecuperacao:
         token = ''.join(secrets.choice(alphabet) for _ in range(32))
         return token
     @staticmethod
-    def criar_token(usurio_id, horas_validade):
+    def criar_token(usuario_id, horas_validade=1): 
         # ========= CRIA E SALVA UM TOKEN DE RECUPERAÇÃO
         token = TokenRecuperacao.gerar_token()
         token_hash = hashlib.sha256(token.encode()).hexdigest()
@@ -29,5 +29,5 @@ class TokenRecuperacao:
     @staticmethod
     def usar_token(token):
         # ========= MARCA UM TOKEN COMO USADO
-        token_hash =hashlib.sha256(token.encode()).hexdigest()
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
         return db_instance.marcar_token_usado(token_hash)

@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, url_for, redirect, jsonify, s
 from functools import wraps
 from models.pedido import Pedido
 from models.usuario import Usuario
-from database import init_database
+from database import init_database, db_instance
+
 
 app = Flask(__name__)
 app.secret_key = 'Cauã_é_uma_besta'
@@ -238,7 +239,8 @@ def api_alterar_senha():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-# ====================== ROTAS DE RECUPEÇÃO SENHA ====================
+# ==================== ROTAS DE RECUPERAÇÃO DE SENHA ====================
+
 @app.route('/recuperar-senha', methods=['GET'])
 def pagina_recuperar_senha():
     return render_template('recuperar_senha.html')
@@ -248,62 +250,101 @@ def api_recuperar_senha():
     try:
         data = request.get_json()
         email = data.get('email')
-
-        if not email or not email.strip():
-            return jsonify({'success': False, 'message': 'Email é obrigatorio'}), 400
+        
+        if not email:
+            return jsonify({'success': False, 'message': 'Email é obrigatório'}), 400
+        
         from database import db_instance
-        usuario = db_instance.buscar_usuario_por_email(email)
-
-        # ======= Por segurança, vai retornar sempre sucesso
-        if not usuario:
-            return jsonify({'success': True, 'message': 'Se houver cadastro em nosso sistema receberá um email com as instruções'})
-        
-        # ======= Criação de email de recuperação. 
         from models.token_recuperacao import TokenRecuperacao
-        token = TokenRecuperacao.criar_token(usuario['id'])
-
-        if token:
-            from utils.email_utils import email_utils
-            email_utils.enviar_email_recuperacao(email, token, usuario['nome'])
-            return jsonify({'success': True, 'message': 'Email de recuperação enviado para seu email'})
+        from utils.email_utils import email_utils
         
-        return jsonify({'success': False, 'message': 'Erro ao gerar token'})
+        usuario = db_instance.buscar_usuario_por_email(email)
+        
+        # Por segurança, sempre retorna a mesma mensagem
+        if not usuario:
+            return jsonify({
+                'success': True,
+                'message': 'Se o email existir, você receberá as instruções.'
+            })
+        
+        # =========================  Criar token
+        token = TokenRecuperacao.criar_token(usuario['id'])
+        
+        if token:
+            # ===================== Enviar email
+            email_utils.enviar_email_recuperacao(email, token, usuario['nome'])
+            
+            return jsonify({
+                'success': True,
+                'message': 'Instruções de recuperação enviadas para seu email!'
+            })
+        
+        return jsonify({'success': False, 'message': 'Erro ao gerar token'}), 500
+        
     except Exception as e:
-        print(f"Erro: {e}")
-        return jsonify({'success': False, 'messagem': 'Erro interno' }), 500
+        print(f"Erro na recuperação: {e}")
+        return jsonify({'success': False, 'message': 'Erro interno'}), 500
 
 @app.route('/redefinir-senha', methods=['GET'])
 def pagina_redefinir_senha():
     token = request.args.get('token')
+    
+    if not token:
+        return redirect(url_for('login'))
+    
+    # ===================== Verificar se token é válido
+    from models.token_recuperacao import TokenRecuperacao
+    token_data = TokenRecuperacao.validar_token(token)
+    
+    if not token_data:
+        return render_template('mensagem.html', 
+                             mensagem="Token inválido ou expirado! Solicite uma nova recuperação.",
+                             tipo="error",
+                             link="/recuperar-senha",
+                             link_text="Solicitar novo link")
+    
     return render_template('redefinir_senha.html', token=token)
 
 @app.route('/api/redefinir-senha', methods=['POST'])
 def api_redefinir_senha():
-    try: 
+    """API para redefinir a senha usando o token"""
+    try:
         data = request.get_json()
         token = data.get('token')
         nova_senha = data.get('nova_senha')
-
-        if not token or not nova_senha:
-            return  jsonify({'success': False, 'message': 'Token e nova senha são obrigatórios'}), 400
-        from models.token_recuperacao import TokenRecuperacao
-        from database import db_instance
-
-        # ========= Validação de Token
-        token_data = TokenRecuperacao.validar_token(token)
-        if not token_data:
-            return jsonify({'success': False, 'message': 'Token invalido ou expirado'}), 400
         
-        # ========= Validação de senha forte
+        if not token or not nova_senha:
+            return jsonify({'success': False, 'message': 'Token e nova senha são obrigatórios'}), 400
+        
+        from database import db_instance
+        from models.token_recuperacao import TokenRecuperacao
+        
+        # ======================= Validar token
+        token_data = TokenRecuperacao.validar_token(token)
+        
+        if not token_data:
+            return jsonify({'success': False, 'message': 'Token inválido ou expirado'}), 400
+        
+        # ======================= Validar senha forte
         valida, msg = db_instance.validar_senha_forte(nova_senha)
         if not valida:
             return jsonify({'success': False, 'message': msg}), 400
         
-        # ========= Atualizar senha
+        # ======================== Atualizar senha
         sucesso, mensagem = db_instance.atualizar_senha(token_data['usuario_id'], nova_senha)
-        if sucesso: 
+        
+        if sucesso:
+            # ==================== Marcar token como usado
             TokenRecuperacao.usar_token(token)
-            return jsonify({'success': True, 'message': 'Senha redefinida com sucesso!'})
+            return jsonify({
+                'success': True,
+                'message': 'Senha redefinida com sucesso! Faça login com sua nova senha.'
+            })
+        
         return jsonify({'success': False, 'message': mensagem}), 400
+        
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        print(f"Erro ao redefinir: {e}")
+        return jsonify({'success': False, 'message': 'Erro interno'}), 500
+
+db_instance = Database()

@@ -1,25 +1,51 @@
-SISTEMA DE PEDIDOS DE UMA LANCHONETE:
+# 🍔 SISTEMA DE PEDIDOS DE UMA LANCHONETE
 
-Sistema web completo para gerenciamento de pedidos de uma lanchonete 
-desenvolvido com Python, Flask, MySQL, HTML, CSS e JavaScript.
+Sistema web completo para gerenciamento de pedidos de uma lanchonete desenvolvido com Python, Flask, MySQL, HTML, CSS e JavaScript.
 
-- Cadastrar pedidos
-- Listar pedidos
-- Editar pedidos (método PUT)
-- Deletar pedidos (método DELETE com confirmação)
-- Alterar status do pedido
-- Interface responsiva com tons de cinza e preto
-- Modais de confirmação
-- Notificações de sucesso/erro
-- Animações e transições suaves
+## ✨ Funcionalidades
+
+### Funcionalidades Principais
+- ✅ Cadastrar pedidos
+- ✅ Listar pedidos
+- ✅ Editar pedidos (método PUT)
+- ✅ Deletar pedidos (método DELETE com confirmação)
+- ✅ Alterar status do pedido
+- ✅ Interface responsiva com tons de cinza e preto
+- ✅ Modais de confirmação
+- ✅ Notificações de sucesso/erro
+- ✅ Animações e transições suaves
+
+### 🔐 Funcionalidades de Segurança (Novas)
+- ✅ Sistema de autenticação de usuários
+- ✅ Recuperação de senha por email
+- ✅ Tokens de recuperação com expiração (1 hora)
+- ✅ Validação de senha forte
+- ✅ Proteção contra força bruta
+- ✅ Modo teste para desenvolvimento de emails
+
+## 📁 Estrutura do Projeto
+
 
 Estruturamento das pastas:
 lanchonete/
+│
 ├── app.py                          # Arquivo principal da aplicação
 ├── database.py                     # Configuração do banco de dados
 ├── database.sql                    # Script do banco de dados
+├── .env                            # Variáveis de ambiente (NÃO COMMITAR)
+├── .env.example                    # Exemplo de variáveis de ambiente
+├── .gitignore                      # Arquivos ignorados pelo Git
+├── requirements.txt                # Dependências do projeto
+│
 ├── models/
-│   └── pedido.py                   # Classe Pedido (ORM)
+│   ├── __init__.py                 # Inicializador do pacote
+│   ├── pedido.py                   # Classe Pedido (ORM)
+│   └── token_recuperacao.py        # Classe TokenRecuperacao
+│
+├── utils/                          # Utilitários do sistema
+│   ├── __init__.py                 # Inicializador do pacote
+│   └── email_utils.py              # Utilitário de envio de emails
+│
 ├── static/
 │   ├── css/
 │   │   ├── base.css                # Estilos base
@@ -36,12 +62,16 @@ lanchonete/
 │       ├── cadastrar.js            # Funcionalidades do cadastro
 │       ├── editar.js               # Funcionalidades da edição
 │       └── alterar_status.js       # Funcionalidades de alterar status
+│
 └── templates/
     ├── base.html                   # Template base
     ├── listar.html                 # Página de listagem
     ├── cadastrar.html              # Página de cadastro
     ├── editar.html                 # Página de edição
-    └── alterar_status.html         # Página de alterar status
+    ├── alterar_status.html         # Página de alterar status
+    ├── recuperar_senha.html        # Página de solicitar recuperação
+    ├── redefinir_senha.html        # Página de redefinir senha (NOVO)
+    └── mensagem.html               # Página de mensagens informativas
 
 *Lembrando que as pastas ".venv", e "__pycache__" são criadas
  após inicialização do projeto.
