@@ -21,25 +21,29 @@
                     
                     <div class="form-group">
                         <label for="nova_senha">Nova Senha</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="input-icon">🔒</span>
-                            <input type="password" id="nova_senha" class="form-control" 
-                                   placeholder="Nova senha" required>
+                            <input type="password" id="nova_senha" class="form-control" placeholder="Nova senha (mínimo 8 caracteres)" required>
+                            <button type="button" class="toggle-password" data-target="nova_senha" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px;">
+                                👁️
+                            </button>
                         </div>
                         <small style="color: #888; display: block; margin-top: 5px;">
-                            Requisitos: mínimo 8 caracteres, letra maiúscula, minúscula, número e caractere especial
+                            🔒 Requisitos: letra maiúscula, minúscula, número e caractere especial
                         </small>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="confirmar_senha">Confirmar Senha</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="input-icon">✓</span>
-                            <input type="password" id="confirmar_senha" class="form-control" 
-                                   placeholder="Confirme a nova senha" required>
+                            <input type="password" id="confirmar_senha" class="form-control" placeholder="Confirme a nova senha" required>
+                            <button type="button" class="toggle-password" data-target="confirmar_senha" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px;">
+                                👁️
+                            </button>
                         </div>
                     </div>
-                    
+
                     <button type="submit" class="btn-login" id="submitBtn">
                         Redefinir Senha
                     </button>
@@ -55,58 +59,82 @@
     <div id="notification" class="notification"></div>
     
     <script>
-    document.getElementById('redefinirForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const token = document.getElementById('token').value;
-        const novaSenha = document.getElementById('nova_senha').value;
-        const confirmarSenha = document.getElementById('confirmar_senha').value;
-        
-        if (!novaSenha || !confirmarSenha) {
-            mostrarNotificacao('Preencha todos os campos', 'error');
-            return;
-        }
-        
-        if (novaSenha !== confirmarSenha) {
-            mostrarNotificacao('As senhas não conferem', 'error');
-            return;
-        }
-        
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Redefinindo...';
-        
-        try {
-            const response = await fetch('/api/redefinir-senha', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: token, nova_senha: novaSenha })
-            });
+        document.getElementById('redefinirForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            const data = await response.json();
+            const token = document.getElementById('token').value;
+            const novaSenha = document.getElementById('nova_senha').value;
+            const confirmarSenha = document.getElementById('confirmar_senha').value;
             
-            if (response.ok && data.success) {
-                mostrarNotificacao(data.message, 'success');
-                setTimeout(() => { window.location.href = '/login'; }, 3000);
-            } else {
-                mostrarNotificacao(data.message || 'Erro ao redefinir', 'error');
+            if (!novaSenha || !confirmarSenha) {
+                mostrarNotificacao('Preencha todos os campos', 'error');
+                return;
+            }
+            
+            if (novaSenha !== confirmarSenha) {
+                mostrarNotificacao('As senhas não conferem', 'error');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Redefinindo...';
+            
+            try {
+                const response = await fetch('/api/redefinir-senha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, nova_senha: novaSenha })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    mostrarNotificacao(data.message, 'success');
+                    setTimeout(() => { window.location.href = '/login'; }, 3000);
+                } else {
+                    mostrarNotificacao(data.message || 'Erro ao redefinir', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Redefinir Senha';
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Redefinir Senha';
             }
-        } catch (error) {
-            mostrarNotificacao('Erro de conexão', 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Redefinir Senha';
+        });
+        
+        function mostrarNotificacao(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 4000);
         }
-    });
-    
-    function mostrarNotificacao(message, type) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.className = `notification ${type}`;
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 4000);
-    }
+
+        // ==================== FUNÇÃO DO OLHINHO DA SENHA ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seleciona todos os botões de toggle de senha
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    
+                    if (input) {
+                        // Alternar tipo do input
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            this.textContent = '🙈';  // Olho fechado
+                        } else {
+                            input.type = 'password';
+                            this.textContent = '👁️';  // Olho aberto
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

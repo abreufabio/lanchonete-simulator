@@ -219,23 +219,34 @@ class Database:
     def salvar_token(self, usuario_id, token_hash, horas_validade=1):
         expiracao = datetime.now() + timedelta(hours=horas_validade)
         query = """
-            insert into tokens_recupercao (usuario_id, token_hash, expiracao)
+            insert into tokens_recuperacao (usuario_id, token_hash, expiracao)
             values(%s, %s, %s)
         """
+        # ========== Retorna parametros em Tupla
         return self.execute_query(query, (usuario_id, token_hash, expiracao))
 
     def buscar_token(self, token_hash):
-        query = """
-            select * from token_recuperacao
-            where token_hash = %s and usado = false and expiracao > now()
-        """
-        return self.fetch_one(query, (token_hash))
+        try:
+            query = """
+            SELECT * FROM tokens_recuperacao
+            WHERE token_hash = %s AND usado = FALSE AND expiracao > NOW()
+            """
+            # ============= Retorna parametros em Tulpa
+            resultado = self.fetch_one(query, (token_hash,))
+            return resultado
+        except Exception as e:
+            print(f"Erro ao buscar token: {e}")
+            return None
 
     def marcar_token_usado(self, token_hash):
-        query = "update token_recuperacao set usado = true where token_hash = %s"
+        query = "update tokens_recuperacao set usado = true where token_hash = %s"
+        # ========== Retorna parametros em Tupla
+        return self.execute_query(query, (token_hash,))
 
     def limpar_tokens_expirados(self):
-        query = "delete from token_recupercao where expiracao < now() or usado = true"
+        query = "delete from tokens_recuperacao where expiracao < now() or usado = true"
+        return self.execute_query(query)
+
 
     # ==================== FUNÇÕES DE SENHAS FORTE ======================
 

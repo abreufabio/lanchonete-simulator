@@ -22,16 +22,22 @@
                         <div class="input-group">
                             <span class="input-icon">📧</span>
                             <input type="email" id="email" name="email" class="form-control" 
-                                   placeholder="seu@email.com" required autofocus>
+                                   placeholder="Digite seu e-mail" required autofocus autocomplete="off">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="password">Senha</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="input-icon">🔒</span>
                             <input type="password" id="password" name="password" class="form-control" 
-                                   placeholder="Digite sua senha" required>
+                                   placeholder="Digite sua senha" required autocomplete="off">
+                            <button type="button" class="toggle-password" data-target="password" 
+                                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; cursor: pointer; font-size: 18px; 
+                                           color: #777; transition: color 0.2s;">
+                                👁️
+                            </button>
                         </div>
                     </div>
 
@@ -40,11 +46,13 @@
                         <span>→</span>
                     </button>
                 </form>
+                
                 <div class="login-help">
-                    <a href="/recuperar-senha" id="forgotLink">Esqueci minha senha</a>
+                    <a href="/recuperar-senha" id="forgotLink">🔐 Esqueci minha senha</a>
                 </div>
+                
                 <button type="button" class="btn-register" id="registerBtn">
-                    Criar nova conta
+                    📝 Criar nova conta
                 </button>
             </div>
         </div>
@@ -53,11 +61,11 @@
         </div>
     </div>
 
-    <!-- Modal de Registro CORRIGIDO -->
+    <!-- Modal de Registro MELHORADO -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Criar Nova Conta</h2>
+                <h2>📝 Criar Nova Conta</h2>
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
@@ -67,7 +75,7 @@
                         <div class="input-group">
                             <span class="input-icon">👤</span>
                             <input type="text" id="regNome" name="nome" class="form-control" 
-                                   placeholder="Digite seu nome completo" required>
+                                   placeholder="Digite seu nome completo" required autocomplete="off">
                         </div>
                     </div>
 
@@ -76,30 +84,45 @@
                         <div class="input-group">
                             <span class="input-icon">📧</span>
                             <input type="email" id="regEmail" name="email" class="form-control" 
-                                   placeholder="seu@email.com" required>
+                                   placeholder="Digite seu melhor e-mail" required autocomplete="off">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="regSenha">Senha</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="input-icon">🔒</span>
                             <input type="password" id="regSenha" name="senha" class="form-control" 
-                                   placeholder="Mínimo 6 caracteres" required>
+                                   placeholder="Senha forte (mínimo 8 caracteres)" required autocomplete="off">
+                            <button type="button" class="toggle-password" data-target="regSenha" 
+                                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; cursor: pointer; font-size: 18px; 
+                                           color: #777; transition: color 0.2s;">
+                                👁️
+                            </button>
                         </div>
+                        <small style="color: #888; display: block; margin-top: 5px; font-size: 11px;">
+                            🔒 Requisitos: letra maiúscula, minúscula, número e caractere especial
+                        </small>
                     </div>
 
                     <div class="form-group">
                         <label for="regConfirmSenha">Confirmar Senha</label>
-                        <div class="input-group">
+                        <div class="input-group" style="position: relative;">
                             <span class="input-icon">✓</span>
                             <input type="password" id="regConfirmSenha" name="confirm_senha" class="form-control" 
-                                   placeholder="Digite a senha novamente" required>
+                                   placeholder="Digite a senha novamente" required autocomplete="off">
+                            <button type="button" class="toggle-password" data-target="regConfirmSenha" 
+                                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); 
+                                           background: none; border: none; cursor: pointer; font-size: 18px; 
+                                           color: #777; transition: color 0.2s;">
+                                👁️
+                            </button>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-login" style="margin-top: 20px;">
-                        Cadastrar
+                    <button type="submit" class="btn-login" style="margin-top: 20px; width: 100%;">
+                        📋 Cadastrar
                     </button>
                 </form>
             </div>
@@ -109,5 +132,39 @@
     <div id="notification" class="notification"></div>
     
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script>
+        // Função global para o olhinho da senha
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    
+                    if (input) {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            this.textContent = '🙈';
+                            this.style.color = '#4caf50';
+                        } else {
+                            input.type = 'password';
+                            this.textContent = '👁️';
+                            this.style.color = '#777';
+                        }
+                    }
+                });
+                
+                // Efeito hover no botão
+                button.addEventListener('mouseenter', function() {
+                    this.style.opacity = '0.8';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.opacity = '1';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

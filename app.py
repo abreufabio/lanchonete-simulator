@@ -200,9 +200,6 @@ def alterar_status_pedido(pedido_id):
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 # =========== ROTAS PARA ALTERAR A SENHA DO USUARIO ====================
 @app.route('/alterar-senha', methods=['GET'])
 @login_required
@@ -247,43 +244,63 @@ def pagina_recuperar_senha():
 
 @app.route('/api/recuperar-senha', methods=['POST'])
 def api_recuperar_senha():
+    """API para solicitar token de recuperação"""
     try:
+        # Pegar os dados da requisição
         data = request.get_json()
+        
+        # Verificar se data existe
+        if not data:
+            return jsonify({'success': False, 'message': 'Dados não fornecidos'}), 400
+        
         email = data.get('email')
         
+        # Verificar se email foi fornecido
         if not email:
             return jsonify({'success': False, 'message': 'Email é obrigatório'}), 400
+        
+        print(f"🔍 Email recebido: {email}")
         
         from database import db_instance
         from models.token_recuperacao import TokenRecuperacao
         from utils.email_utils import email_utils
         
+        # Buscar usuário
         usuario = db_instance.buscar_usuario_por_email(email)
         
-        # Por segurança, sempre retorna a mesma mensagem
+        print(f"Usuário encontrado: {usuario}")
+        
+        # Por segurança, sempre retorna a mesma mensagem mesmo se email não existir
         if not usuario:
+            print("Usuário não encontrado!")
             return jsonify({
                 'success': True,
-                'message': 'Se o email existir, você receberá as instruções.'
+                'message': 'Se o email existir em nosso sistema, você receberá as instruções.'
             })
         
-        # =========================  Criar token
+        # Criar token
         token = TokenRecuperacao.criar_token(usuario['id'])
+        print(f"Token gerado: {token}")
         
-        if token:
-            # ===================== Enviar email
-            email_utils.enviar_email_recuperacao(email, token, usuario['nome'])
-            
-            return jsonify({
-                'success': True,
-                'message': 'Instruções de recuperação enviadas para seu email!'
-            })
+        if not token:
+            print("Falha ao gerar token")
+            return jsonify({'success': False, 'message': 'Erro ao gerar token de recuperação'}), 500
         
-        return jsonify({'success': False, 'message': 'Erro ao gerar token'}), 500
+        # Enviar email (agora com todas as variáveis definidas)
+        print(f"📧 Tentando enviar email para: {email}")
+        resultado_email = email_utils.enviar_email_recuperacao(email, token, usuario['nome'])
+        print(f"📧 Resultado do envio: {resultado_email}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Instruções de recuperação enviadas para seu email!'
+        })
         
     except Exception as e:
-        print(f"Erro na recuperação: {e}")
-        return jsonify({'success': False, 'message': 'Erro interno'}), 500
+        print(f"ERRO NA RECUPERAÇÃO: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': f'Erro interno: {str(e)}'}), 500
 
 @app.route('/redefinir-senha', methods=['GET'])
 def pagina_redefinir_senha():
@@ -346,5 +363,8 @@ def api_redefinir_senha():
     except Exception as e:
         print(f"Erro ao redefinir: {e}")
         return jsonify({'success': False, 'message': 'Erro interno'}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 db_instance = Database()

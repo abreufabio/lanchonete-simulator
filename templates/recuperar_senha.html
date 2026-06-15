@@ -21,8 +21,7 @@
                         <label for="email">E-mail cadastrado</label>
                         <div class="input-group">
                             <span class="input-icon">📧</span>
-                            <input type="email" id="email" name="email" class="form-control" 
-                                   placeholder="seu@email.com" required>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Digite seu e-mail cadastrado" required>
                         </div>
                     </div>
                     
@@ -41,51 +40,75 @@
     <div id="notification" class="notification"></div>
     
     <script>
-    document.getElementById('recuperarForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const submitBtn = document.getElementById('submitBtn');
-        
-        if (!email) {
-            mostrarNotificacao('Por favor, informe seu email', 'error');
-            return;
-        }
-        
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
-        
-        try {
-            const response = await fetch('/api/recuperar-senha', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email })
-            });
+        document.getElementById('recuperarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            const data = await response.json();
+            const email = document.getElementById('email').value;
+            const submitBtn = document.getElementById('submitBtn');
             
-            if (response.ok && data.success) {
-                mostrarNotificacao(data.message, 'success');
-                setTimeout(() => { window.location.href = '/login'; }, 3000);
-            } else {
-                mostrarNotificacao(data.message || 'Erro ao processar', 'error');
+            if (!email) {
+                mostrarNotificacao('Por favor, informe seu email', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
+            
+            try {
+                const response = await fetch('/api/recuperar-senha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    mostrarNotificacao(data.message, 'success');
+                    setTimeout(() => { window.location.href = '/login'; }, 3000);
+                } else {
+                    mostrarNotificacao(data.message || 'Erro ao processar', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Enviar Link de Recuperação';
+                }
+            } catch (error) {
+                mostrarNotificacao('Erro de conexão', 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Enviar Link de Recuperação';
             }
-        } catch (error) {
-            mostrarNotificacao('Erro de conexão', 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = 'Enviar Link de Recuperação';
+        });
+        
+        function mostrarNotificacao(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 4000);
         }
-    });
-    
-    function mostrarNotificacao(message, type) {
-        const notification = document.getElementById('notification');
-        notification.textContent = message;
-        notification.className = `notification ${type}`;
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 4000);
-    }
+
+        // ==================== FUNÇÃO DO OLHINHO DA SENHA ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seleciona todos os botões de toggle de senha
+            const toggleButtons = document.querySelectorAll('.toggle-password');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    
+                    if (input) {
+                        // Alternar tipo do input
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            this.textContent = '🙈';  // Olho fechado
+                        } else {
+                            input.type = 'password';
+                            this.textContent = '👁️';  // Olho aberto
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

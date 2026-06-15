@@ -46,11 +46,11 @@ class LoginManager {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
         }
         
+        //Verifica o link de recupeçaão de senha
         const forgotLink = document.getElementById('forgotLink');
         if (forgotLink) {
             forgotLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.showNotification('Contate o administrador para recuperar sua senha.', 'info');
+                window.location.href = '/recuperar-senha';
             });
         }
         
